@@ -43,7 +43,7 @@ pub fn test(req: Request<Body>) -> Response<Body> {
   let matchers = vec!(
     Must::Match{ key: String::from("appname"), value: String::from("live2vod-lambdas") },
     Must::Match{ key: String::from("lambda_function"), value: String::from("cdt-live2vod-s3event-lambda-prd") },
-    Must::MatchPhrase{ key: String::from("message"), value: String::from("Sent SQS Message") },
+    Must::MatchPhrase{ key: String::from("message"), value: String::from("Sent SQS Message"), },
   );
 
   let json: Value = json!({
