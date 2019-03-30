@@ -1,6 +1,7 @@
 use hyper::{Body, Request, Response};
-use serde_json::{json, Value};
-use crate::http::server::elasticsearch::lib::Must;
+use serde_json::Value;
+use crate::elasticsearch::*;
+use chrono::Utc;
 
 pub fn status(req: Request<Body>) -> Response<Body> {
   let _workflow = req.uri().query();
@@ -38,7 +39,7 @@ pub fn status(req: Request<Body>) -> Response<Body> {
     .unwrap()
 }
 
-pub fn test(req: Request<Body>) -> Response<Body> {
+pub fn test(_req: Request<Body>) -> Response<Body> {
 
   let matchers = vec!(
     Must::Match{ key: String::from("appname"), value: String::from("live2vod-lambdas") },
@@ -46,22 +47,7 @@ pub fn test(req: Request<Body>) -> Response<Body> {
     Must::MatchPhrase{ key: String::from("message"), value: String::from("Sent SQS Message"), },
   );
 
-  let json: Value = json!({
-      "size": 1,
-      "query": {
-        "bool": {
-           "must": matchers,
-           "filter": {
-             "range": {
-               "@timestamp": {
-                 "gte": "${from.fold[LocalDateTime](LocalDateTime.now.minusDays(1))(identity).format(DateTimeFormatter.ISO_INSTANT)}",
-                 "lte": "${to.fold[LocalDateTime](LocalDateTime.now)(identity).format(DateTimeFormatter.ISO_INSTANT)}"
-               }
-             }
-           }
-        }
-      }
-     });
+  let json: Value = query_from(1, &matchers, Utc::now());
 
   Response::builder()
     .status(200)
