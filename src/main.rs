@@ -1,4 +1,5 @@
 mod elasticsearch;
+mod workflow;
 mod server;
 
 fn main() {

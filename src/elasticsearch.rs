@@ -31,7 +31,7 @@ pub fn query_from(records: i8, matchers: &Vec<Must>, now: DateTime<Utc>) -> Valu
 }
 
 #[cfg(test)]
-mod elasticsearch_lib_tests {
+mod elasticsearch_tests {
   use chrono::prelude::*;
 
   #[test]
