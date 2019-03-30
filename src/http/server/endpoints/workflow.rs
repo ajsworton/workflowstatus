@@ -40,10 +40,10 @@ pub fn status(req: Request<Body>) -> Response<Body> {
 
 pub fn test(req: Request<Body>) -> Response<Body> {
 
-  let matchers: Vec<Must> = vec!(
-    Must::new("match", "appname", "live2vod-lambdas"),
-    Must::new("match", "lambda_function", "cdt-live2vod-s3event-lambda-prd"),
-    Must::new("match_phrase", "message", "Sent SQS Message"),
+  let matchers = vec!(
+    Must::Match{ key: String::from("appname"), value: String::from("live2vod-lambdas") },
+    Must::Match{ key: String::from("lambda_function"), value: String::from("cdt-live2vod-s3event-lambda-prd") },
+    Must::MatchPhrase{ key: String::from("message"), value: String::from("Sent SQS Message") },
   );
 
   let json: Value = json!({

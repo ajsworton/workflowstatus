@@ -17,10 +17,9 @@ fn main() {
 
 //    http::server::serve(addr, port);
 
-    let matchers: Vec<Must> = vec!(
-        Must::new("match", "appname", "live2vod-lambdas"),
-        Must::new("match", "lambda_function", "cdt-live2vod-s3event-lambda-prd"),
-        Must::new("match_phrase", "message", "Sent SQS Message"),
+    let matchers = vec!(
+      Must::Match{ key: String::from("lambda_function"), value: String::from("cdt-live2vod-s3event-lambda-prd") },
+      Must::MatchPhrase{ key: String::from("message"), value: String::from("Sent SQS Message") },
     );
 
     let j = http::server::elasticsearch::lib::query(1, matchers);

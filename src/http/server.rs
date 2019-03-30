@@ -36,6 +36,8 @@ pub fn serve(addr: [u8; 4], port: u16) {
   hyper::rt::run(server);
 }
 
+type FResponseBody = Box<Future<Item=Response<Body>, Error=hyper::Error> + Send>;
+
 fn endpoints(req: Request<Body>) -> FResponseBody {
   let response: Response<Body> = match (req.method(), req.uri().path()) {
 
@@ -50,5 +52,4 @@ fn endpoints(req: Request<Body>) -> FResponseBody {
   Box::new(future::ok(response))
 }
 
-type FResponseBody = Box<Future<Item=Response<Body>, Error=hyper::Error> + Send>;
 
