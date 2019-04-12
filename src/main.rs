@@ -4,12 +4,18 @@ mod server;
 mod query;
 //mod config;
 
+#[macro_use] extern crate failure;
+
 fn main() {
 
 //  let cfg = config::Config("com", "ajsworton", "workflowstatus");
 
-  let addr = [0, 0, 0, 0];
-  let port = 5000;
+//  let  stage1_matchers = vec!()
 
-  server::serve(addr, port);
+  elasticsearch::test_json();
+
+//  let addr = [0, 0, 0, 0];
+//  let port = 5000;
+
+//  server::serve(addr, port);
 }

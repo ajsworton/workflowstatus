@@ -41,7 +41,7 @@ fn endpoints(req: Request<Body>) -> FResponseBody {
     (_, "/_meta/ping") => endpoints::meta::ping(),
     (_, "/_meta/status") => endpoints::meta::status(),
     (_, "/workflow/status") => endpoints::workflow::status(req),
-    (_, "/workflow") => endpoints::workflow::test(req),
+//    (_, "/workflow") => endpoints::workflow::test(req),
     _ => endpoints::meta::not_found(),
   };
 

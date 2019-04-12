@@ -31,7 +31,7 @@ pub struct Event {
 
 pub struct Workflow(Vec<Stage>);
 
-type EventResult = Result<Option<Event>, Error>;
+pub type EventResult = Result<Option<Event>, Error>;
 
 
 pub trait QueryExecutor {
