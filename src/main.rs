@@ -1,11 +1,12 @@
 mod elasticsearch;
 mod workflow;
 mod server;
-mod config;
+mod query;
+//mod config;
 
 fn main() {
 
-  let cfg = config::Config("com", "ajsworton", "workflowstatus");
+//  let cfg = config::Config("com", "ajsworton", "workflowstatus");
 
   let addr = [0, 0, 0, 0];
   let port = 5000;
