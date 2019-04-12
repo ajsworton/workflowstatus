@@ -8,6 +8,7 @@ use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 use chrono::Duration;
 use futures::stream;
+use futures::Future;
 
 mod http;
 
@@ -20,58 +21,13 @@ pub enum Must {
   MatchPhrase(HashMap<String, String>),
 }
 
-pub fn test_json() {
-  stage1_json();
-  stage2_json();
-  stage3_json();
-}
-
-pub fn stage1_json() {
-
-  let matchers = vec!(
-    get_match("appname", "live2vod-lambdas"),
-    get_match("lambda_function", "cdt-live2vod-s3event-lambda-prd"),
-    get_match("message", "0/0000/0000#001"),
-    get_match_phrase("message", "Sent SQS Message"),
-  );
-
-  let q = query_from(1, &matchers, &TimeRange::Since(Utc::now() - Duration::hours(1) - Duration::minutes(5)));
-  println!("Query: {}", q)
-}
-
-pub fn stage2_json() {
-
-  let matchers = vec!(
-    get_match("appname", "live2vod-lambdas"),
-    get_match("lambda_function", "cdt-live2vod-copyrendition-lambda-prd"),
-    get_match("message", "0/0000/0000#001"),
-    get_match_phrase("message", "Sent SQS Message"),
-  );
-
-  let q = query_from(1, &matchers, &TimeRange::Since(Utc::now() - Duration::hours(1) - Duration::minutes(5)));
-  println!("Query: {}", q)
-}
-
-pub fn stage3_json() {
-
-  let matchers = vec!(
-    get_match("appname", "live2vod-lambdas"),
-    get_match("lambda_function", "cdt-live2vod-renditioncopycomplete-lambda-prd"),
-    get_match("message", "0/0000/0000#001"),
-    get_match_phrase("message", "Sent SQS Message"),
-  );
-
-  let q = query_from(1, &matchers, &TimeRange::Since(Utc::now() - Duration::hours(1) - Duration::minutes(5)));
-  println!("Query: {}", q)
-}
-
-fn get_match(key: &str, value: &str) -> Must {
+pub fn get_match(key: &str, value: &str) -> Must {
   let mut hm: HashMap<String, String> = HashMap::new();
   hm.insert(key.to_owned(), value.to_owned());
   Must::Match(hm)
 }
 
-fn get_match_phrase(key: &str, value: &str) -> Must {
+pub fn get_match_phrase(key: &str, value: &str) -> Must {
   let mut hm: HashMap<String, String> = HashMap::new();
   hm.insert(key.to_owned(), value.to_owned());
   Must::MatchPhrase(hm)
@@ -123,7 +79,6 @@ pub struct EsConfig {
 }
 
 pub struct ElasticQueryExecutor {
-  config: EsConfig,
   http_client: Client<HttpConnector, Body>,
 }
 
@@ -133,12 +88,20 @@ fn to_json(query: &Query) -> Value {
   unimplemented!()
 }
 
+impl ElasticQueryExecutor {
+  pub fn new() -> Self {
+   let http_client = Client::new();
+
+    ElasticQueryExecutor {
+      http_client
+    }
+  }
+}
+
 impl QueryExecutor for ElasticQueryExecutor {
-  fn run(&self, stage_idx: u8, query: &Query) -> EventResult {
 
-    let es_query = to_json(query);
-
-    let root_url = Uri::from_static("http://logs.infraprd.cd.itv.com:9200/logstash-*/_search");
+  fn run(&self, stage_idx: u8, es_query: &Value) -> EventResult {
+    let root_url = Uri::from_static("http://logsv6.infraprd.cd.itv.com:9200/logstash-*/_search");
 
     let body = Body::wrap_stream(stream::once(serde_json::to_string(&es_query)));
 
@@ -149,8 +112,13 @@ impl QueryExecutor for ElasticQueryExecutor {
       .body(body)
       .expect("couldn't build a request!");
 
-    let result = http::expect::<EsHits>(&self.http_client, request);
-    unimplemented!()
+    http::expect::<EsHits>(&self.http_client, request).wait().map(|es_hits| {
+      if es_hits.total > 0 {
+        Some(Event { stage_idx })
+      } else {
+        None
+      }
+    })
   }
 }
 
