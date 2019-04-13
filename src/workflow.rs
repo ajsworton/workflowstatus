@@ -1,4 +1,3 @@
-use crate::elasticsearch;
 use crate::query::*;
 use chrono::{Duration, Utc};
 use serde_json::Value;

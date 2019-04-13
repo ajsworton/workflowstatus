@@ -1,6 +1,5 @@
 use failure::Error;
 use futures::{Future, Stream};
-use futures::stream;
 use hyper::client::HttpConnector;
 use hyper::Body;
 use hyper::Chunk;

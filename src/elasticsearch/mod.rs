@@ -3,12 +3,11 @@ use serde_json::Value;
 use serde_json::json;
 use crate::query::*;
 use hyper::client::HttpConnector;
-use hyper::{header, Body, Chunk, Uri, Client, Method, Request};
+use hyper::{header, Body, Uri, Client, Method, Request};
 use std::collections::HashMap;
-use chrono::{DateTime, Utc};
-use chrono::Duration;
 use futures::stream;
-use futures::Future;
+use futures::prelude::*;
+use hyper::rt::{self, Future, Stream};
 
 mod http;
 
@@ -112,7 +111,10 @@ impl QueryExecutor for ElasticQueryExecutor {
       .body(body)
       .expect("couldn't build a request!");
 
-    http::expect::<EsHits>(&self.http_client, request).wait().map(|es_hits| {
+    let fut = http::expect::<EsHits>(&self.http_client, request);
+
+    rt::spawn(fut);
+    fut.wait().map(|es_hits| {
       if es_hits.total > 0 {
         Some(Event { stage_idx })
       } else {

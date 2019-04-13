@@ -1,7 +1,4 @@
 use hyper::{Body, Request, Response};
-use serde_json::Value;
-use crate::elasticsearch::*;
-use crate::query::*;
 
 pub fn status(req: Request<Body>) -> Response<Body> {
   let _workflow = req.uri().query();

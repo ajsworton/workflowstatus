@@ -12,6 +12,10 @@ use crate::workflow::live2vod_workflow;
 
 fn main() {
 
+//  let cfg = config::Config("com", "ajsworton", "workflowstatus");
+
+//  let  stage1_matchers = vec!()
+
   let query_executor = ElasticQueryExecutor::new();
   let workflow_executor = WorkflowExecutor::new(query_executor);
   let res = workflow_executor.run(&live2vod_workflow());
@@ -21,4 +25,8 @@ fn main() {
     r => println!("Couldn't detect much.. sorry: {:?}", r),
   }
 
+//  let addr = [0, 0, 0, 0];
+//  let port = 5000;
+
+//  server::serve(addr, port);
 }
